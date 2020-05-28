@@ -1,7 +1,7 @@
 import json
 import sys
 
-from flask import Flask, request
+from flask import Flask, request, session, Response
 
 from pinterest import CookieManager as Manager, LoggingUtil
 from pinterest.CookieManager import CookieManager
@@ -13,6 +13,15 @@ app = Flask(__name__)
 logging = LoggingUtil.get_logging()
 
 env = 'dev'
+
+
+@app.route('/pinterest/logout')
+def google_logout():
+    res = Response('logout')
+    keys = request.cookies
+    for key in keys:
+        res.delete_cookie(key)
+    return res
 
 
 @app.route('/pinterest/recommend')
@@ -46,7 +55,7 @@ def improvement():
     set_cookie, cookie = get_cookie(request)
 
     keyword = request.args.get("keyword")
-    keywords = PinterestSearchImprovement(cookie).get_recommend(keyword)
+    keywords = 'test' # PinterestSearchImprovement(cookie).get_recommend(keyword)
     rs = {'status': 200}
     if keywords:
         rs['keywords'] = keywords
