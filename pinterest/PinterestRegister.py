@@ -31,9 +31,13 @@ class PinterestRegister:
                                        , executable_path=chrome_driver)
 
         # self.driver.set_page_load_timeout(20)
+        self.set_window_size()
         self.driver.set_script_timeout(20)
         self.driver.implicitly_wait(10)
         self.url = 'https://www.pinterest.com'
+
+    def set_window_size(self):
+        self.driver.set_window_size(1024, 768)
 
     def h2(self):
         return self.driver.find_element_by_css_selector("div > h2").text
@@ -77,8 +81,10 @@ class PinterestRegister:
                 if is_first_time or '最后一步' in self.h2():
                     elements = self.driver.find_elements_by_css_selector('div.XBe.iD5 > div')  # '最后一步！让我们知道你对什么感兴趣'
                     for e in elements:
+                        print(e.text)
                         if e.text in focus_on:
-                            print(e.text)
+                            e.location_once_scrolled_into_view # should be called without ()
+                            # the location_once_scrolled_into_view is a Python property.
                             e.click()
                             sleep(0.1)
 

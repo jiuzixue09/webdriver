@@ -56,6 +56,15 @@ handlers:
         backupCount: 20
         encoding: utf8
 
+    rabbit_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: INFO
+        formatter: simple
+        filename: logs/rabbit.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
+
 loggers:
     webdriver_module:
         level: INFO
@@ -68,6 +77,10 @@ loggers:
     redis_module:
         level: INFO
         handlers: [redis_handler]
+        propagate: no
+    rabbit_module:
+        level: INFO
+        handlers: [rabbit_handler]
         propagate: no
 
 root:

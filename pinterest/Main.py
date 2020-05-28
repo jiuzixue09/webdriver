@@ -1,6 +1,5 @@
 import json
 import sys
-from queue import Queue
 
 from flask import Flask, request
 
@@ -8,15 +7,12 @@ from pinterest import CookieManager as Manager, LoggingUtil
 from pinterest.CookieManager import CookieManager
 from pinterest.PinterestLogin import PinterestLogin
 from pinterest.PinterestRecommend import PinterestImageSearch
-from pinterest.PinterestRegisterManger import PinterestRegisterManger
 from pinterest.PinterestSearchImprovement import PinterestSearchImprovement
 
 app = Flask(__name__)
 logging = LoggingUtil.get_logging()
 
 env = 'dev'
-browsers = Queue()
-browser_size, max_browser_size = 0, 5
 
 
 @app.route('/pinterest/recommend')
@@ -75,47 +71,6 @@ def login():
     return rs
 
 
-def open_browser():
-    if ++browser_size < max_browser_size:
-        b = PinterestRegisterManger(env)
-        browsers.put(b)
-        return b
-
-
-def close_browser(p: PinterestRegisterManger):
-    try:
-        p.close()
-    except Exception as e:
-        logging.error('close browser error', e)
-    finally:
-        open_browser()
-
-
-def browser():
-    PinterestRegisterManger(env)
-
-
-@app.route('/pinterest/register')
-def register():
-    rs = {'status': 200}
-    try:
-        p = browsers.get(timeout=5)
-    except:
-        p = open_browser()
-        if p is None:
-            rs['status'] = 300
-            rs['message'] = 'too many connection'
-            return
-
-    try:
-        user_name = request.args.get("user_name")
-        p.register(user_name)
-        browsers.put(p)
-    except Exception as e:
-        logging.error('register error', e)
-        close_browser(p)
-
-
 @app.route('/pinterest/cookie')
 def pick_up_cookie():
     cookie_type = request.args.get("type")
@@ -134,5 +89,4 @@ def pick_up_cookie():
 if __name__ == "__main__":
     args = sys.argv[1:]
     env = args[0]
-    open_browser()
     app.run(host='0.0.0.0')

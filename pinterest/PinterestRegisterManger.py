@@ -1,4 +1,4 @@
-
+from queue import Queue
 
 import yaml
 
@@ -9,6 +9,48 @@ from pinterest.PinterestRegister import PinterestRegister
 with open('config.yaml') as f:
     config = yaml.safe_load(f.read())
 logging = LoggingUtil.get_logging()
+
+browsers = Queue()
+browser_size, max_browser_size = 0, 5
+
+
+def open_browser(env):
+    global browser_size
+    if browser_size < max_browser_size:
+        try:
+            b = PinterestRegisterManger(env)
+            browsers.put(b)
+            browser_size += 1
+            return b
+        except Exception as e:
+            logging.error('open browser error', e)
+
+
+def register(user_name, env):
+    try:
+        p = browsers.get(timeout=5)
+    except:
+        p = open_browser(env)
+        if p is None:
+            return p
+
+    try:
+        str_cookies = p.process(user_name)
+        if str_cookies:
+            browsers.put(p)
+            return str_cookies
+    except Exception as e:
+        logging.error('register error', e)
+        close_browser(p, env)
+
+
+def close_browser(p, env):
+    try:
+        p.close()
+    except Exception as e:
+        logging.error('close browser error', e)
+    finally:
+        open_browser(env)
 
 
 class PinterestRegisterManger:
@@ -24,9 +66,10 @@ class PinterestRegisterManger:
         self.redis = PinterestAccountRedis(env)
 
         self.p = PinterestRegister(c['hide_browser'], c['path'])
+        self.env = env
 
-    def register(self, user_name):
-        self.p.delete_all_cookies()
+    def process(self, user_name):
+        # self.p.delete_all_cookies()
         cookie = self.redis.r_get(user_name)
         if not cookie:
             logging.info('can\'t find user: %s' % user_name)
@@ -41,3 +84,6 @@ class PinterestRegisterManger:
 
     def close(self):
         self.p.close()
+
+
+register('zxwlekivaul@163.com', 'dev')

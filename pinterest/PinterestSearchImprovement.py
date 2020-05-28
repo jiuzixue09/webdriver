@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 
 from pinterest import LoggingUtil
 
-logging = LoggingUtil.get_logging('mysql_module')
+logging = LoggingUtil.get_logging()
 
 
 pre_url = 'https://www.pinterest.com/search/pins/?q=#{keyword}'
