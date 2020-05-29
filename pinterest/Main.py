@@ -2,6 +2,7 @@ import json
 import sys
 
 from flask import Flask, request, Response
+import base64
 
 from pinterest import CookieManager as Manager, LoggingUtil
 from pinterest.CookieManager import CookieManager
@@ -92,6 +93,23 @@ def pick_up_cookie():
             rs['status'] = 200
             rs['cookies'] = cookie
             rs['name'] = key
+            break
+
+    return rs
+
+
+@app.route('/pinterest/user')
+def pick_up_user():
+    cookie_type = request.args.get("type")
+    rs = {'status': 500}
+
+    for i in range(2):
+        key, cookie = CookieManager(env).pick_up_cookie(cookie_type)
+        if cookie:
+            rs['status'] = 200
+            name = base64.b64encode(key.encode('utf-8'))
+            rs['name'] = str(name, encoding="utf-8")
+
             break
 
     return rs
