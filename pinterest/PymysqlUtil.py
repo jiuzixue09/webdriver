@@ -71,7 +71,7 @@ class PymysqlUtil:
     def __insert(self, sql):
         count = 0
         try:
-            log.info('sql:', sql)
+            log.info('sql:%s', sql)
             self.getCon()
             count = self.cursor.execute(sql)
             self.db.commit()
