@@ -46,7 +46,8 @@ class PinterestAccountRedis:
         if keys:
             try:
                 key = keys[Random().randint(0, len(keys) - 1)]
-                return self.r_get(key)
+                key = key.replace(pre_key, '')
+                return key, self.r_get(key)
             except Exception as e:
                 logging.info('error', e)
                 return None

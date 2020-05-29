@@ -3,6 +3,8 @@ from flask import Response
 from pinterest.PinterestAccountMysql import PinterestAccountMysql
 from pinterest.PinterestAccountRedis import PinterestAccountRedis
 
+max_age = 7 * 24 * 60 * 60
+
 
 def get_cookie(request):
     list_cookies = [k + '=' + v for k, v in request.cookies.items()]
@@ -12,7 +14,7 @@ def get_cookie(request):
 
 def cookie_exist(request):
     request_cookies = request.cookies
-    return True if len(request_cookies) > 0 and request_cookies['_pinterest_sess'] else False
+    return True if len(request_cookies) > 0 and request_cookies.get('_pinterest_sess') else False
 
 
 def get_cookie_resp(cookie, content):
@@ -20,7 +22,7 @@ def get_cookie_resp(cookie, content):
     for c in cookie.split(';'):
         kv = c.split('=', 1)
         k, v = kv[0], kv[1]
-        res.set_cookie(k, v)
+        res.set_cookie(k, v, max_age)
     return res
 
 
@@ -30,7 +32,9 @@ class CookieManager:
         self.p = PinterestAccountRedis(env)
         self.m = PinterestAccountMysql(env)
 
-    def pick_up_cookie(self, cookie_type=None):
+    def pick_up_cookie(self, cookie_type=None, name=None):
+        if name:
+            return name, self.p.r_get(name)
         return self.p.get_random_cookie()
 
     def add_cookie(self, user_name, cookie):
