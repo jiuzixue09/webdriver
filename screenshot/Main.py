@@ -60,7 +60,7 @@ def download_prod():
 
 @app.route('/download/test')
 def download_test():
-    return send_file(file_name + 'test.zip')
+    return send_file(file_name + '.zip')
 
 
 if __name__ == "__main__":
