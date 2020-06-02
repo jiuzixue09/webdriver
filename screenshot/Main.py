@@ -1,4 +1,6 @@
 import shutil
+import time
+
 from flask import Flask
 from flask import send_file
 
@@ -7,6 +9,7 @@ from screenshot import BigBigWork, LoggingUtil
 app = Flask(__name__, static_url_path='')
 
 logging = LoggingUtil.get_logging()
+file_name = ''
 
 
 @app.route('/screenshot/prod')
@@ -37,20 +40,27 @@ def screenshot_test():
         return {'status': 'error'}
 
 
+def date():
+    time.strftime('%Y-%m-%d')
+
+
 def zip_compress(dir_name, output_filename):
-    shutil.rmtree(output_filename + '.zip', True)
+    global file_name
+    shutil.rmtree(file_name + '.zip', True)
+    output_filename += date()
+    file_name = output_filename
     zip_file = shutil.make_archive(output_filename, 'zip', dir_name)
     print(zip_file)
 
 
 @app.route('/download/prod')
 def download_prod():
-    return send_file('prod.zip')
+    return send_file(file_name + '.zip')
 
 
 @app.route('/download/test')
 def download_test():
-    return send_file('test.zip')
+    return send_file(file_name + 'test.zip')
 
 
 if __name__ == "__main__":
