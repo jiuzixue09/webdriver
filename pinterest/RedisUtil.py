@@ -40,6 +40,16 @@ class RedisUtil:
         value = [v.decode("UTF-8") for v in value]
         return value
 
+    def r_sadd(self, name, item):
+        redi = redis.Redis(connection_pool=self.__pool)
+        redi.sadd(name, item)
+
+    def r_srandmember(self, name, number=1):
+        redi = redis.Redis(connection_pool=self.__pool)
+        srandmember = redi.srandmember(name, number)
+        member = [v.decode("UTF-8") for v in srandmember]
+        return member
+
     # 删除数据
     def r_del(self, key):
         log.info('delete key %s', key)

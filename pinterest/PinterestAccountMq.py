@@ -1,6 +1,7 @@
 import datetime
 import json
 import sys
+from time import sleep
 
 import pika
 import yaml
@@ -43,6 +44,7 @@ def callback(ch, method, properties, body):
     user_password = req['user_password']
     login(user_name, user_password)
     ch.basic_ack(delivery_tag=method.delivery_tag)
+    sleep(2)
 
 
 class PinterestAccountMq:
@@ -76,7 +78,7 @@ class PinterestAccountMq:
             channel = self.connection.channel()
             channel.queue_bind(exchange=EXCHANGE, queue=Q_NAME, routing_key=R_KEY)
 
-            channel.basic_qos(prefetch_count=3)
+            channel.basic_qos(prefetch_count=2)
             channel.basic_consume(on_message_callback=callback, queue=Q_NAME)
 
             print("start consuming.")

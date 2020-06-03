@@ -1,5 +1,3 @@
-from random import Random
-
 import yaml
 
 from pinterest import LoggingUtil
@@ -9,7 +7,8 @@ with open('config.yaml') as f:
     config = yaml.safe_load(f.read())
 logging = LoggingUtil.get_logging('webdriver_module')
 
-pre_key = 'pinterest:cookie:'
+redis_pre_key = 'pinterest:cookie:'
+redis_account_key = 'pinterest:accounts'
 
 
 class PinterestAccountRedis:
@@ -27,30 +26,28 @@ class PinterestAccountRedis:
     def add_cookie(self, user_name, cookie):
         logging.info('add cookie for user: %s', user_name)
         self.redis.r_set(self.g_key(user_name), cookie, 60 * 60 * 24 * 7)
+        self.redis.r_sadd(redis_account_key, user_name)
 
     def get_keys(self):
-        keys = self.redis.r_keys(pre_key + '*')
+        keys = self.redis.r_keys(redis_pre_key + '*')
         return keys
 
     def r_get(self, key: str):
-        if not key.startswith(pre_key):
-            key = pre_key + key
+        if not key.startswith(redis_pre_key):
+            key = redis_pre_key + key
         return self.redis.r_get(key)
 
     @staticmethod
     def g_key(key):
-        return pre_key + key
+        return redis_pre_key + key
 
     def get_random_cookie(self):
-        keys = self.get_keys()
-        if keys:
-            try:
-                key = keys[Random().randint(0, len(keys) - 1)]
-                key = key.replace(pre_key, '')
-                return key, self.r_get(key)
-            except Exception as e:
-                logging.info('error', e)
-                return None
-        else:
+        try:
+            for i in range(5):
+                key = self.redis.r_srandmember(redis_account_key)[0]
+                data = self.r_get(self.g_key(key))
+                if data:
+                    return key, data
+        except Exception as e:
+            logging.info('error', e)
             return None
-

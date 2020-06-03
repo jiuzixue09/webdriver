@@ -1,9 +1,12 @@
 from flask import Response
 
+from pinterest import LoggingUtil
 from pinterest.PinterestAccountMysql import PinterestAccountMysql
 from pinterest.PinterestAccountRedis import PinterestAccountRedis
 
 max_age = 7 * 24 * 60 * 60
+
+logging = LoggingUtil.get_logging()
 
 
 def get_cookie(request):
@@ -38,5 +41,8 @@ class CookieManager:
         return self.p.get_random_cookie()
 
     def add_cookie(self, user_name, cookie):
-        self.p.add_cookie(user_name, cookie)
-        self.m.update_cookie(user_name, cookie, 1, 1)
+        try:
+            self.p.add_cookie(user_name, cookie)
+            self.m.update_cookie(user_name, cookie, 1, 1)
+        except Exception as e:
+            logging.error('add cookie error: ', e)
