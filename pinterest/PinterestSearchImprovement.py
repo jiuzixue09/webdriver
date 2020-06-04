@@ -8,6 +8,7 @@ logging = LoggingUtil.get_logging()
 
 pre_url = 'https://www.pinterest.com/search/pins/?q=#{keyword}'
 
+
 class PinterestSearchImprovement:
 
     @staticmethod

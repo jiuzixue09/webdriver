@@ -2,6 +2,7 @@ import json
 import sys
 
 from flask import Flask, request, Response
+from flask_cors import CORS
 import base64
 
 from pinterest import CookieManager as Manager, LoggingUtil
@@ -11,6 +12,7 @@ from pinterest.PinterestRecommend import PinterestImageSearch
 from pinterest.PinterestSearchImprovement import PinterestSearchImprovement
 
 app = Flask(__name__)
+CORS(app)
 logging = LoggingUtil.get_logging()
 
 env = 'dev'
