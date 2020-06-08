@@ -84,37 +84,48 @@ class BigBigWork:
         self.driver.set_window_size(1024, 768)
 
     def screen_shot(self, times=0):
-        logging.info("截图，图片目录=%s", self.path)
-        gift = self.driver.find_element_by_css_selector('div.gift-content')
-        sleep(1)
-        self.save(self.path + '/' + str(times) + '登_gift' + '.png')
-        gift.click()
-
-        self.driver.switch_to.window(self.driver.window_handles[-1])
-
-        containers = self.driver.find_elements_by_css_selector('div.container-center > div')
-        for i in range(len(containers)):
-            containers[i].click()
+        try:
+            logging.info("截图，图片目录=%s", self.path)
+            gift = self.driver.find_element_by_css_selector('div.gift-content')
             sleep(1)
-            self.save(self.path + '/' + str(times) + '登_payment_' + str(i) + '.png')
+            self.save(self.path + '/' + str(times) + '登_gift' + '.png')
+            gift.click()
+
+            self.driver.switch_to.window(self.driver.window_handles[-1])
+
+            containers = self.driver.find_elements_by_css_selector('div.container-center > div')
+            for i in range(len(containers)):
+                containers[i].click()
+                sleep(1)
+                self.save(self.path + '/' + str(times) + '登_payment_' + str(i) + '.png')
+        except Exception as e:
+            logging.error('截图异常', e)
 
     def screen_shot2(self, times=0):
-        self.open(self.home_url)
-        sleep(1)
-
-        self.driver.find_element_by_id("p-button").click()
-        sleep(1)
-        items = self.driver.find_elements_by_css_selector('#VIPSelect > li.item')
-
-        for i in range(len(items)):
-            items[i].click()
+        try:
+            self.open(self.home_url)
             sleep(1)
-            self.save(self.path + '/' + str(times) + '登_下载_' + str(i) + '.png')
 
-        sleep(0.5)
-        self.driver.execute_script('document.getElementsByClassName("closedthismask")[0].click()')
-        sleep(0.5)
-        self.save(self.path + '/' + str(times) + '登_下载_' + str(len(items)) + '.png')
+            for _ in range(3):
+                try:
+                    self.driver.find_element_by_id("p-button").click()
+                    break
+                except:
+                    sleep(1)
+
+            items = self.driver.find_elements_by_css_selector('#VIPSelect > li.item')
+
+            for i in range(len(items)):
+                items[i].click()
+                sleep(1)
+                self.save(self.path + '/' + str(times) + '登_下载_' + str(i) + '.png')
+
+            sleep(0.5)
+            self.driver.execute_script('document.getElementsByClassName("closedthismask")[0].click()')
+            sleep(0.5)
+            self.save(self.path + '/' + str(times) + '登_下载_' + str(len(items)) + '.png')
+        except Exception as e:
+            logging.error('截图异常', e)
 
     def save(self, name):
         # self.driver.set_window_size(2048, 1536)
