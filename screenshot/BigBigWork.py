@@ -17,7 +17,7 @@ with open('config.yaml') as file:
 
 class BigBigWork:
 
-    def __init__(self, headless=False, root=None, change_user_state_url=None, login_url=None, env=None):
+    def __init__(self, headless=False, root=None, change_user_state_url=None, home_url=None, login_url=None, env=None):
 
         logging.info("初始化浏览器")
         options = Options()
@@ -38,6 +38,7 @@ class BigBigWork:
 
         self.change_user_state_url = change_user_state_url
         self.login_url = login_url
+        self.home_url = home_url
 
         path = time.strftime('%Y-%m-%d')
         if root is not None:
@@ -60,16 +61,16 @@ class BigBigWork:
         logging.info("打开页面, %s", url)
         self.driver.get(url)
 
-    def login(self, user_name, user_password):
+    def login(self, user_name, user_password, times):
         self.open(self.login_url)
-        logging.info("用户登录，用户名=%s, 密码=%s", user_name, user_password)
+        logging.info("用户第%d次登录，用户名=%s, 密码=%s", times, user_name, user_password)
         self.driver.find_element_by_css_selector('div.login.btn').click()
         self.driver.find_element_by_css_selector('div.weixin-login-toPhone > a > i').click()
         self.driver.find_element_by_css_selector('ul.inputbox li input[type=text]').send_keys(user_name)
         self.driver.find_element_by_css_selector('ul.inputbox li input[type=password]').send_keys(user_password)
         self.driver.find_element_by_css_selector('button.loginbutton').click()
         time.sleep(1)
-        if self.driver.current_url != 'https://www.bigbigwork.com/home':
+        if self.driver.current_url != self.home_url:
             try:
                 txt = self.driver.find_element_by_css_selector('span._tip').text
                 if len(txt) > 0:
@@ -98,15 +99,11 @@ class BigBigWork:
             self.save(self.path + '/' + str(times) + '登_payment_' + str(i) + '.png')
 
     def screen_shot2(self, times=0):
-        self.open('https://www.bigbigwork.com/tupian/image/20257531160.html')
+        self.open(self.home_url)
         sleep(1)
 
-        for _ in [1, 2]:
-            try:
-                self.driver.execute_script('document.getElementsByClassName("download-b")[0].click()')
-                sleep(0.5)
-            except Exception as e:
-                logging.info('find element error', e)
+        self.driver.find_element_by_id("p-button").click()
+        sleep(1)
         items = self.driver.find_elements_by_css_selector('#VIPSelect > li.item')
 
         for i in range(len(items)):
@@ -151,6 +148,7 @@ def normal_user_test(env):
     configuration = config.get(env)
     login_url = configuration.get('login_url')
     change_user_state_url = configuration.get('change_user_state_url')
+    home_url = configuration.get('home_url')
     normal_user = configuration.get('account').get('normal_user')
     user_name = str(normal_user.get('name'))
     password = str(normal_user.get('password'))
@@ -159,9 +157,9 @@ def normal_user_test(env):
 
     big_big_work = path = None
     try:
-        big_big_work = BigBigWork(hide_browser, user_name, change_user_state_url, login_url, env)
+        big_big_work = BigBigWork(hide_browser, user_name, change_user_state_url, home_url, login_url, env)
         for i in range(normal_user.get('login_times') + 1):
-            info = big_big_work.login(user_name, password)
+            info = big_big_work.login(user_name, password, i)
             if info is not None:
                 rs['status'] = 'error'
                 rs['reason'] = info
@@ -173,6 +171,9 @@ def normal_user_test(env):
             big_big_work.change_login_times(i + 1)
             big_big_work.delete_all_cookies()
             path = big_big_work.get_path()
+    except Exception as e:
+        logging.error('normal user screenshot error', e)
+
     finally:
         big_big_work.close()
 
@@ -187,6 +188,7 @@ def vip_user_test(env):
     configuration = config.get(env)
     login_url = configuration.get('login_url')
     change_user_state_url = configuration.get('change_user_state_url')
+    home_url = configuration.get('home_url')
     vip_user = configuration.get('account').get('vip_user')
     user_name = str(vip_user.get('name'))
     password = str(vip_user.get('password'))
@@ -195,9 +197,9 @@ def vip_user_test(env):
 
     path = big_big_work = None
     try:
-        big_big_work = BigBigWork(hide_browser, user_name, change_user_state_url, login_url, env)
+        big_big_work = BigBigWork(hide_browser, user_name, change_user_state_url, home_url, login_url, env)
         for i in range(vip_user.get('login_times') + 1):
-            info = big_big_work.login(user_name, password)
+            info = big_big_work.login(user_name, password, i)
             if info is not None:
                 rs['status'] = 'error'
                 rs['reason'] = info
@@ -208,6 +210,8 @@ def vip_user_test(env):
             big_big_work.change_login_times(i + 1)
             big_big_work.delete_all_cookies()
             path = big_big_work.get_path()
+    except Exception as e:
+        logging.error('vip user screenshot error', e)
     finally:
         big_big_work.close()
 
