@@ -1,5 +1,5 @@
 import requests
-
+import json
 from pinterest import LoggingUtil
 
 logging = LoggingUtil.get_logging()
@@ -41,23 +41,35 @@ class PinterestLogin:
         super().__init__()
         self.headers = self.__get_headers()
 
-    def get_cookie(self, user_name, password):
+    def get_cookie(self, user_name, password, proxies=None):
+        status_code = 0
+        str_cookie = ''
         try:
-            response = requests.post(request_url, headers=self.headers, data=self.__get_params(user_name, password))
-            logging.info("user_name=%s, password=%s, status=%s", user_name, password, response.status_code)
-
-            try:
-                list_cookies = [c.name + '=' + c.value for c in response.cookies]
-                str_cookie = ';'.join(list_cookies)
-                return str_cookie
-            except Exception as e:
-                logging.error('user_name=%s, password=%s', user_name, password, e)
-
+            response = requests.post(request_url, proxies=proxies, headers=self.headers, data=self.__get_params(user_name, password))
+            status_code = response.status_code
+            if status_code == 401:
+                content = response.content.decode("utf-8")
+                j = json.loads(content)
+                message_detail = j['resource_response']['error']['message_detail']
+                logging.info("user_name=%s, password=%s, status=%s, message_detail=%s", user_name, password, status_code, message_detail)
+            else:
+                logging.info("user_name=%s, password=%s, status=%s", user_name, password, status_code)
+                try:
+                    list_cookies = [c.name + '=' + c.value for c in response.cookies]
+                    str_cookie = ';'.join(list_cookies)
+                except Exception as e:
+                    logging.error('user_name=%s, password=%s', user_name, password, e)
         except Exception as e:
             logging.error('user_name=%s, password=%s', user_name, password, e)
+        finally:
+            return status_code, str_cookie
 
 
-if __name__ == '__main__':
-    p = PinterestLogin()
-    print(p.get_cookie('xzcevranespx@163.com', '123456-- asdf'))
+# if __name__ == '__main__':
+#     p = PinterestLogin()
+#     proxies = {
+#         'http': 'http://127.0.0.1:7890',
+#         'https': 'http://127.0.0.1:7890',
+#     }
+#     print(p.get_cookie('usnruaaj@163.com', '123456-- asdf', proxies))
 
