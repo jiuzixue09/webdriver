@@ -1,5 +1,8 @@
+import os
+import re
 import shutil
 import time
+from threading import Thread
 
 from flask import Flask, request
 from flask import send_file
@@ -61,5 +64,15 @@ def download_test():
     return send_file(name)
 
 
+class DeleteFile(Thread):
+    dirs = os.listdir('.')
+    for f in dirs:
+        if (f.startswith('test') or f.startswith('prod')) and f.endswith('.zip'):
+            d = re.findall('[0-9]+', f)
+            if d and (int(date()) - int(d[0])) > 10:
+                os.remove(f)
+
+
 if __name__ == "__main__":
+    DeleteFile().start()
     app.run(host='0.0.0.0')

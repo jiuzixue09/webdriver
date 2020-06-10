@@ -16,7 +16,7 @@ focus_on = {'家居装潢', '时尚', '艺术', '绘画', '壁纸', '穿搭', '�
 
 
 class PinterestRegister:
-    def __init__(self, headless, chrome_driver):
+    def __init__(self, headless, chrome_driver, proxy=False):
         super().__init__()
 
         options = Options()
@@ -26,6 +26,9 @@ class PinterestRegister:
             options.add_argument('--no-sandbox')
 
         logging.info('chrome_driver=%s', chrome_driver)
+        if proxy:
+            proxy = '127.0.0.1:7891'
+            options.add_argument('--proxy-server=socks5://' + proxy)
 
         self.driver = webdriver.Chrome(options=options
                                        , executable_path=chrome_driver)
@@ -118,3 +121,6 @@ class PinterestRegister:
             self.driver.quit()
         except Exception as e:
             logging.error('close driver exception', e)
+
+
+# PinterestRegister(False, '/opt/google/chrome/chromedriver').get_cookie('_auth=1;_b="AUz2cjlRrUNMepbFhZAS4RLgIvbl0fP/OYM2eTNyzOCpLqFuvGygg+Pi1CzVJ2cCyUU=";_pinterest_sess=TWc9PSZUcDBjbnlESFYydS9WQVpOVGlWN1NDMEFmMVMrdTc3d0VyTy9MWGw4OXhqZWpaVkZyWm01NUhpWk5ESW1KaFJpR0x6R1FmYXNucjYxV2xsS2VoZDdyRGhIakpnTUlHZncrMXhrU0tvWDJjZmhCeVBDcFVjV29SVGpTYWdadG1EcFlSelROd0JzeXF0RldUQytCeGpQTWE0SUxwbEdvdWdUNldiSllLaXB0MW4yU3RVcC8rZEhHZjI4Z1dESjB6SHRZVGQ4NVBDaEh5a3ZGS2tpeWJrbnVWbVlJRDRZa0J4TzFSQVhMaHRPZHJLQTdUVkNUTnp1ZXVDT25GZEsyYnlQN1d0RERhWFpKZmFxaUtXRHRuZDdTTW1lUjRoZWZxWFhpeWp6WXJGRllNaEE0UGxnem5FTTRhQyszRlJ5cm1HTVJBL1F4bndHdlZmT21MSFRaRUVrVXErcFZzTjZ6S0pHQ2tmQ2c1RVA4ajB5NGNsY1htd201M3ZFVjZtL00wOG1XTDQrR2J3VHVZQytFVXBzZkN1aTFqZi92TlhXUWhlT0ZZUWpkbng2bWd4RXV2Y1A2NENNc1NtdXFJWFBES0ZNVThJc3JMc3FPL25VN0RuTHo3d1B5L1BSVmJmUGR5dmQxeU9McnIyckJ1YzJQVFpRNFMxcWwwR0FabGE1SERLU2FKVlV1cy94emJSa1BveHQzbG1TNTQzNGdueElrWitHM29GaGtQVTR6ZG9CKzc5WkVUV3BUb3NVZWtxNWMrS3VpbEgvQUl3YkV5ajhoMS9yeSt1aG5iYXI5UiszZi9PQkt1ZG5uTC9MbmhsUmorSEVmYXN6dnlNWjdOdzRYeTd5blRudzBmS2JzbXVqKysxb3FRZEhaTUI0WjFkY2l5eDRqT2FpeDJLSFF6WDIwaGE2Q1Y3ek8zY3lTZGNETXlEYjBHa3dPMVZ2S0tDbnZKZHdwQ1p3cGx2VjJSOFRKTjBSNnRsMzMvYjhOa05UZVVRaVN6VUUwSkNHM3puQ1k1Qy9ZL0ViclVEYlNKWGtNSWlxSUFUVEVMQi9qN3pWbVk2cHpNVE1sczNrdGJiTEdiN0cwS1NhdDN4ck1tam9MM3RvY1NId1lZRVNjcTd3Z2ZsRmpieEFKaG1zR1Z0N1Y0YWhTS096VGdsK1Z3eHp2K09tMkRwMG5CKzlSWHlGSWZRTXpzWklMTUY4YzJrTzhJclcwbGxPNEV0RFZKT2ZWT01DL0pobCtvRXlzUDVabWVGUitTT1pVZW80NWUyRisrYjlqaHRHVzBmOWc4T1RHL0srd2hMRWgrZk9yWktlVFA3bncyc29GR3VkMnI1cm5YRE80MGtUelc1enpnUnA1NHVaUnBPM1h6NmNtS21vM09RcFN0ZEhZUT09Jlo2UGE2cmpzL2hhb2FZMWg0cWZzelVHZjBvWT0=')

@@ -46,3 +46,10 @@ class CookieManager:
             self.m.update_cookie(user_name, cookie, 1, 1)
         except Exception as e:
             logging.error('add cookie error: ', e)
+
+    def disable_cookie(self, user_name, cookie):
+        try:
+            self.p.remove_cookie(user_name)
+            self.m.update_cookie(user_name, cookie, 0, 0)
+        except Exception as e:
+            logging.error('add cookie error: ', e)
