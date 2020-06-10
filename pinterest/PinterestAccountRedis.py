@@ -25,7 +25,7 @@ class PinterestAccountRedis:
 
     def add_cookie(self, user_name, cookie):
         logging.info('add cookie for user: %s', user_name)
-        self.redis.r_set(self.g_key(user_name), cookie, 60 * 60 * 24 * 7)
+        self.redis.r_set(self.g_key(user_name), cookie, 60 * 60 * 24 * 7 * 2)
         self.redis.r_sadd(redis_account_key, user_name)
 
     def remove_cookie(self, user_name):
