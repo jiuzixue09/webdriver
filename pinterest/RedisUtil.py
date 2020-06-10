@@ -44,6 +44,10 @@ class RedisUtil:
         redi = redis.Redis(connection_pool=self.__pool)
         redi.sadd(name, item)
 
+    def r_srem(self, name, item):
+        redi = redis.Redis(connection_pool=self.__pool)
+        redi.srem(name, item)
+
     def r_srandmember(self, name, number=1):
         redi = redis.Redis(connection_pool=self.__pool)
         srandmember = redi.srandmember(name, number)
