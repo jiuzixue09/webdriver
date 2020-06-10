@@ -1,7 +1,6 @@
 import datetime
 import json
 import sys
-from time import sleep
 
 import pika
 import yaml
@@ -26,9 +25,12 @@ pl = PinterestLogin()
 
 
 def login(user_name, user_password):
-    str_cookies = pl.get_cookie(user_name, user_password)
-    if str_cookies:
-        CookieManager(env).add_cookie(user_name, str_cookies)
+    status_code, str_cookies = pl.get_cookie(user_name, user_password)
+    manager = CookieManager(env)
+    if status_code == 200:
+        manager.add_cookie(user_name, str_cookies)
+    elif status_code == 401:
+        manager.disable_cookie(user_name, str_cookies)
 
 
 def register(user_name):
@@ -40,11 +42,10 @@ def register(user_name):
 def callback(ch, method, properties, body):
     print(str(datetime.datetime.now()), body)
     req = json.loads(body.decode('utf-8'))
-    user_name = req['user_name']
-    user_password = req['user_password']
+    user_name = req['userName']
+    user_password = req['userPassword']
     login(user_name, user_password)
     ch.basic_ack(delivery_tag=method.delivery_tag)
-    sleep(2)
 
 
 class PinterestAccountMq:
@@ -84,8 +85,7 @@ class PinterestAccountMq:
             print("start consuming.")
             channel.start_consuming()
         except Exception as e:
-            print(str(e))
-            print('connect failed')
+            logging.error('connect failed', e)
 
 
 if __name__ == '__main__':
