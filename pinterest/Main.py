@@ -72,13 +72,11 @@ def improvement():
 def login():
     user_name = request.args.get("user_name")
     user_password = request.args.get("user_password")
-    str_cookies = PinterestLogin().get_cookie(user_name, user_password)
-    rs = {'status': 200}
-    if str_cookies:
+    status_code, str_cookies = PinterestLogin().get_cookie(user_name, user_password)
+    rs = {'status': status_code}
+    if status_code == 200:
         rs['cookies'] = str_cookies
         CookieManager(env).add_cookie(user_name, str_cookies)
-    else:
-        rs['status'] = 500
 
     return rs
 
