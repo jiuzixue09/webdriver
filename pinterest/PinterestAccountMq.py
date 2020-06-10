@@ -1,6 +1,7 @@
 import datetime
 import json
 import sys
+from time import sleep
 
 import pika
 import yaml
@@ -31,6 +32,10 @@ def login(user_name, user_password):
         manager.add_cookie(user_name, str_cookies)
     elif status_code == 401:
         manager.disable_cookie(user_name, str_cookies)
+    elif status_code == 429:  # 控制频率
+        logging.info('登录被拒，休眠10分钟')
+        sleep(10 * 60)
+
 
 
 def register(user_name):
