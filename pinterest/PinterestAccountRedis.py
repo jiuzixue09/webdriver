@@ -28,6 +28,9 @@ class PinterestAccountRedis:
         self.redis.r_set(self.g_key(user_name), cookie, 60 * 60 * 24 * 7)
         self.redis.r_sadd(redis_account_key, user_name)
 
+    def remove_cookie(self, user_name):
+        self.redis.r_srem(redis_account_key, user_name)
+
     def get_keys(self):
         keys = self.redis.r_keys(redis_pre_key + '*')
         return keys
