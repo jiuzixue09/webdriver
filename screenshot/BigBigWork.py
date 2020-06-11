@@ -25,7 +25,7 @@ class BigBigWork:
             WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located((By.CSS_SELECTOR, css_select)))
             return True
         except Exception as e:
-            logging.error('can\'t find elements:{}'.format(css_select), e)
+            logging.exception('can\'t find elements:{}'.format(css_select))
             return False
 
     def __init__(self, headless=False, root=None, change_user_state_url=None, home_url=None, login_url=None, env=None):
@@ -51,7 +51,7 @@ class BigBigWork:
         self.login_url = login_url
         self.home_url = home_url
 
-        path = time.strftime('%Y-%m-%d')
+        path = time.strftime('%Y%m%d%H%M')
         if root is not None:
             path = path + '/' + root
         if env is not None:
@@ -86,11 +86,12 @@ class BigBigWork:
                 if self.wait_for_elements('span._tip', 5):
                     txt = self.driver.find_element_by_css_selector('span._tip').text
                     if len(txt) > 0:
-                        logging.error('%s', txt)
+                        logging.exception('%s', txt)
                         self.save(self.path + '/' + str(times) + '登_失败' + '.png')
                         return txt
             except Exception as e:
-                logging.info('login error', e)
+                logging.exception('login error')
+                self.save(self.path + '/' + str(times) + '登_失败' + '.png')
         return None
 
     def set_window_size(self):
@@ -99,21 +100,23 @@ class BigBigWork:
     def screen_shot(self, times=0):
         try:
             logging.info("截图，图片目录=%s", self.path)
-            self.wait_for_elements('div.gift-content')
-            gift = self.driver.find_element_by_css_selector('div.gift-content')
-            sleep(1)
-            self.save(self.path + '/' + str(times) + '登_gift' + '.png')
-            gift.click()
-
-            self.driver.switch_to.window(self.driver.window_handles[-1])
-
-            containers = self.driver.find_elements_by_css_selector('div.container-center > div')
-            for i in range(len(containers)):
-                containers[i].click()
+            if self.wait_for_elements('div.gift-content'):
+                gift = self.driver.find_element_by_css_selector('div.gift-content')
                 sleep(1)
-                self.save(self.path + '/' + str(times) + '登_payment_' + str(i) + '.png')
+                self.save(self.path + '/' + str(times) + '登_gift' + '.png')
+                gift.click()
+
+                self.driver.switch_to.window(self.driver.window_handles[-1])
+
+                containers = self.driver.find_elements_by_css_selector('div.container-center > div')
+                for i in range(len(containers)):
+                    containers[i].click()
+                    sleep(1)
+                    self.save(self.path + '/' + str(times) + '登_payment_' + str(i) + '.png')
+            else:
+                self.save(self.path + '/' + str(times) + '登_无gift' + '.png')
         except Exception as e:
-            logging.error('截图异常', e)
+            logging.exception('截图异常')
 
     def screen_shot2(self, times=0):
         try:
@@ -134,7 +137,7 @@ class BigBigWork:
             sleep(0.5)
             self.save(self.path + '/' + str(times) + '登_下载_' + str(len(items)) + '.png')
         except Exception as e:
-            logging.error('截图异常', e)
+            logging.exception('截图异常')
 
     def save(self, name):
         # self.driver.set_window_size(2048, 1536)
@@ -194,7 +197,7 @@ def normal_user_test(env):
     except Exception as e:
         rs['status'] = 'error'
         rs['reason'] = '页面加载异常'
-        logging.error('normal user screenshot error', e)
+        logging.exception('normal user screenshot error')
 
     finally:
         big_big_work.close()
@@ -233,7 +236,7 @@ def vip_user_test(env):
             big_big_work.delete_all_cookies()
             path = big_big_work.get_path()
     except Exception as e:
-        logging.error('vip user screenshot error', e)
+        logging.exception('vip user screenshot error')
     finally:
         rs['status'] = 'error'
         rs['reason'] = '页面加载异常'
@@ -245,7 +248,7 @@ def vip_user_test(env):
     return rs
 
 
-normal_user_test('prod')
+# normal_user_test('prod')
 
 # pip3 install selenium pyyaml
 
