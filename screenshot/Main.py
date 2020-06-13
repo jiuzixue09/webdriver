@@ -13,9 +13,14 @@ app = Flask(__name__, static_url_path='')
 
 logging = LoggingUtil.get_logging()
 
+test_running, prod_running = False, False
+
 
 @app.route('/screenshot/prod')
 def screenshot_prod():
+    global prod_running
+    if prod_running:
+        return {'status': 'please waiting for another job finished'}
     try:
         rs1 = BigBigWork.normal_user_test('prod')
         rs2 = BigBigWork.vip_user_test('prod')
@@ -26,11 +31,17 @@ def screenshot_prod():
     except Exception as e:
         logging.exception('error')
         return {'status': 'error'}
+    finally:
+        prod_running = False
 
 
 @app.route('/screenshot/test')
 def screenshot_test():
+    global test_running
+    if test_running:
+        return {'status': 'please waiting for another job finished'}
     try:
+        test_running = True
         rs1 = BigBigWork.normal_user_test('test')
         rs2 = BigBigWork.vip_user_test('test')
         file_name = zip_compress('test', 'test')
@@ -40,6 +51,8 @@ def screenshot_test():
     except Exception as e:
         logging.exception('error')
         return {'status': 'error'}
+    finally:
+        test_running = False
 
 
 def date():
