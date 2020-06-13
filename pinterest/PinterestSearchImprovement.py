@@ -44,10 +44,10 @@ class PinterestSearchImprovement:
                 keywords = [e.get_text() for e in elements]
                 return ','.join(keywords)
             except Exception as e:
-                logging.error('keyword=%s', keyword, e)
+                logging.exception('keyword=%s', keyword)
 
         except Exception as e:
-            logging.error('error: keyword=%s', keyword, e)
+            logging.exception('error: keyword=%s', keyword)
 
 
 if __name__ == '__main__':

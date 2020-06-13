@@ -52,5 +52,5 @@ class PinterestAccountRedis:
                 if data:
                     return key, data
         except Exception as e:
-            logging.info('error', e)
+            logging.exception('error')
             return None

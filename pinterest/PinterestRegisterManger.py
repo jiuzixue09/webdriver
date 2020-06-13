@@ -23,7 +23,7 @@ def open_browser(env):
             browser_size += 1
             return b
         except Exception as e:
-            logging.error('open browser error', e)
+            logging.exception('open browser error')
 
 
 def register(user_name, env):
@@ -40,7 +40,7 @@ def register(user_name, env):
             browsers.put(p)
             return str_cookies
     except Exception as e:
-        logging.error('register error', e)
+        logging.exception('register error')
         close_browser(p, env)
 
 
@@ -48,7 +48,7 @@ def close_browser(p, env):
     try:
         p.close()
     except Exception as e:
-        logging.error('close browser error', e)
+        logging.exception('close browser error')
     finally:
         open_browser(env)
 
@@ -80,7 +80,7 @@ class PinterestRegisterManger:
                 if n_cookie:
                     return n_cookie
             except Exception as e:
-                logging.error('error', e)
+                logging.exception('error')
 
     def close(self):
         self.p.close()

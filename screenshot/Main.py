@@ -24,7 +24,7 @@ def screenshot_prod():
         shutil.rmtree('prod')
         return rs
     except Exception as e:
-        logging.error('error', e)
+        logging.exception('error')
         return {'status': 'error'}
 
 
@@ -38,7 +38,7 @@ def screenshot_test():
         shutil.rmtree('test')
         return rs
     except Exception as e:
-        logging.error('error', e)
+        logging.exception('error')
         return {'status': 'error'}
 
 

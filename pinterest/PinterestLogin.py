@@ -58,9 +58,9 @@ class PinterestLogin:
                     list_cookies = [c.name + '=' + c.value for c in response.cookies]
                     str_cookie = ';'.join(list_cookies)
                 except Exception as e:
-                    logging.error('user_name=%s, password=%s', user_name, password, e)
+                    logging.exception('user_name=%s, password=%s', user_name, password)
         except Exception as e:
-            logging.error('user_name=%s, password=%s', user_name, password, e)
+            logging.exception('user_name=%s, password=%s', user_name, password)
         finally:
             return status_code, str_cookie
 

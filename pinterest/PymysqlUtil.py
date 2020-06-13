@@ -51,7 +51,7 @@ class PymysqlUtil:
             self.cursor.execute(sql)
             res = self.cursor.fetchone()
         except Exception as e:
-            log.error('sql error, sql= %s', sql, e)
+            log.exception('sql error, sql= %s', sql)
         return res
 
     # 查询列表数据
@@ -62,7 +62,7 @@ class PymysqlUtil:
             self.cursor.execute(sql)
             res = self.cursor.fetchall()
         except Exception as e:
-            log.error('sql error, sql= %s', sql, e)
+            log.exception('sql error, sql= %s', sql)
         finally:
             self.close()
         return res
@@ -76,7 +76,7 @@ class PymysqlUtil:
             count = self.cursor.execute(sql)
             self.db.commit()
         except Exception as e:
-            log.error('sql error, sql= %s', sql, e)
+            log.exception('sql error, sql= %s', sql)
             self.db.rollback()
         finally:
             self.close()

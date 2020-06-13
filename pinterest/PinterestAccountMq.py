@@ -90,7 +90,7 @@ class PinterestAccountMq:
             print("start consuming.")
             channel.start_consuming()
         except Exception as e:
-            logging.error('connect failed', e)
+            logging.exception('connect failed')
 
 
 if __name__ == '__main__':
