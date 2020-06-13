@@ -65,12 +65,20 @@ def download_test():
 
 
 class DeleteFile(Thread):
-    dirs = os.listdir('.')
-    for f in dirs:
-        if (f.startswith('test') or f.startswith('prod')) and f.endswith('.zip'):
-            d = re.findall('[0-9]+', f)
-            if d and (int(date()) - int(d[0])) > 10:
-                os.remove(f)
+
+    def run(self) -> None:
+        super().run()
+        while True:
+            try:
+                dirs = os.listdir('.')
+                for f in dirs:
+                    if (f.startswith('test') or f.startswith('prod')) and f.endswith('.zip'):
+                        d = re.findall('[0-9]+', f)
+                        if d and (int(date()) - int(d[0])) > 10:
+                            os.remove(f)
+                time.sleep(10 * 60)
+            except Exception as e:
+                logging.exception('delete file error')
 
 
 if __name__ == "__main__":
