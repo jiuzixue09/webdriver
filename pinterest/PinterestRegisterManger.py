@@ -86,4 +86,3 @@ class PinterestRegisterManger:
         self.p.close()
 
 
-register('zxwlekivaul@163.com', 'dev')
