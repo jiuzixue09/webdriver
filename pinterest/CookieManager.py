@@ -40,10 +40,10 @@ class CookieManager:
             return name, self.p.r_get(name)
         return self.p.get_random_cookie()
 
-    def add_cookie(self, user_name, cookie):
+    def add_cookie(self, user_name, cookie, user_type=None):
         try:
             self.p.add_cookie(user_name, cookie)
-            self.m.update_cookie(user_name, cookie, 1, 1)
+            self.m.update_cookie(user_name, cookie, 1, 1, user_type)
         except Exception as e:
             logging.exception('add cookie error: ')
 

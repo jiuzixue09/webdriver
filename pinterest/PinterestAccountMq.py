@@ -37,11 +37,10 @@ def login(user_name, user_password):
         sleep(10 * 60)
 
 
-
 def register(user_name):
     str_cookies = PinterestRegisterManger.register(user_name, env)
     if str_cookies:
-        CookieManager(env).add_cookie(user_name, str_cookies)
+        CookieManager(env).add_cookie(user_name, str_cookies, 2)
 
 
 def callback(ch, method, properties, body):
@@ -49,7 +48,10 @@ def callback(ch, method, properties, body):
     req = json.loads(body.decode('utf-8'))
     user_name = req['userName']
     user_password = req['userPassword']
-    login(user_name, user_password)
+    if req['type'] == 1:
+        register(user_name)
+    else:
+        login(user_name, user_password)
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
