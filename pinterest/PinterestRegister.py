@@ -5,6 +5,9 @@ from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, InvalidSessionIdException, NoSuchWindowException
 from selenium.webdriver.chrome.options import Options
 from urllib3.exceptions import MaxRetryError
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
 
 from pinterest import LoggingUtil
 
@@ -39,6 +42,14 @@ class PinterestRegister:
         self.driver.implicitly_wait(10)
         self.url = 'https://www.pinterest.com'
 
+    def wait_for_elements(self, css_select, timeout=10):
+        try:
+            WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located((By.CSS_SELECTOR, css_select)))
+            return True
+        except Exception as e:
+            logging.exception('can\'t find elements:{}'.format(css_select))
+            return False
+
     def set_window_size(self):
         self.driver.set_window_size(1024, 768)
 
@@ -60,15 +71,14 @@ class PinterestRegister:
             self.driver.get(self.url)
 
             try:
-                is_first_time = True
-                try:
+                is_first_time = self.wait_for_elements('button[aria-label="Next"]', 5)
+                if is_first_time:
                     self.driver.find_element_by_css_selector(
                         'button[aria-label="Next"]').click()  # Welcome to Pinterest!
-                    sleep(1)
-                except Exception as e:
-                    logging.exception('can\'t find next button')
-                    is_first_time = False
 
+                if not self.wait_for_elements("div > h2", 5):
+                    logging.info('can\'t find tag h2 ...')
+                    return
                 if is_first_time or '性别' in self.h2() or 'identify' in self.h2():
                     self.driver.find_element_by_id('female').click()  # '你是如何认同性别的？'
                     sleep(1)
@@ -123,4 +133,4 @@ class PinterestRegister:
             logging.exception('close driver exception')
 
 
-# PinterestRegister(False, '/opt/google/chrome/chromedriver').get_cookie('_auth=1;_b="AUz2cjlRrUNMepbFhZAS4RLgIvbl0fP/OYM2eTNyzOCpLqFuvGygg+Pi1CzVJ2cCyUU=";_pinterest_sess=TWc9PSZUcDBjbnlESFYydS9WQVpOVGlWN1NDMEFmMVMrdTc3d0VyTy9MWGw4OXhqZWpaVkZyWm01NUhpWk5ESW1KaFJpR0x6R1FmYXNucjYxV2xsS2VoZDdyRGhIakpnTUlHZncrMXhrU0tvWDJjZmhCeVBDcFVjV29SVGpTYWdadG1EcFlSelROd0JzeXF0RldUQytCeGpQTWE0SUxwbEdvdWdUNldiSllLaXB0MW4yU3RVcC8rZEhHZjI4Z1dESjB6SHRZVGQ4NVBDaEh5a3ZGS2tpeWJrbnVWbVlJRDRZa0J4TzFSQVhMaHRPZHJLQTdUVkNUTnp1ZXVDT25GZEsyYnlQN1d0RERhWFpKZmFxaUtXRHRuZDdTTW1lUjRoZWZxWFhpeWp6WXJGRllNaEE0UGxnem5FTTRhQyszRlJ5cm1HTVJBL1F4bndHdlZmT21MSFRaRUVrVXErcFZzTjZ6S0pHQ2tmQ2c1RVA4ajB5NGNsY1htd201M3ZFVjZtL00wOG1XTDQrR2J3VHVZQytFVXBzZkN1aTFqZi92TlhXUWhlT0ZZUWpkbng2bWd4RXV2Y1A2NENNc1NtdXFJWFBES0ZNVThJc3JMc3FPL25VN0RuTHo3d1B5L1BSVmJmUGR5dmQxeU9McnIyckJ1YzJQVFpRNFMxcWwwR0FabGE1SERLU2FKVlV1cy94emJSa1BveHQzbG1TNTQzNGdueElrWitHM29GaGtQVTR6ZG9CKzc5WkVUV3BUb3NVZWtxNWMrS3VpbEgvQUl3YkV5ajhoMS9yeSt1aG5iYXI5UiszZi9PQkt1ZG5uTC9MbmhsUmorSEVmYXN6dnlNWjdOdzRYeTd5blRudzBmS2JzbXVqKysxb3FRZEhaTUI0WjFkY2l5eDRqT2FpeDJLSFF6WDIwaGE2Q1Y3ek8zY3lTZGNETXlEYjBHa3dPMVZ2S0tDbnZKZHdwQ1p3cGx2VjJSOFRKTjBSNnRsMzMvYjhOa05UZVVRaVN6VUUwSkNHM3puQ1k1Qy9ZL0ViclVEYlNKWGtNSWlxSUFUVEVMQi9qN3pWbVk2cHpNVE1sczNrdGJiTEdiN0cwS1NhdDN4ck1tam9MM3RvY1NId1lZRVNjcTd3Z2ZsRmpieEFKaG1zR1Z0N1Y0YWhTS096VGdsK1Z3eHp2K09tMkRwMG5CKzlSWHlGSWZRTXpzWklMTUY4YzJrTzhJclcwbGxPNEV0RFZKT2ZWT01DL0pobCtvRXlzUDVabWVGUitTT1pVZW80NWUyRisrYjlqaHRHVzBmOWc4T1RHL0srd2hMRWgrZk9yWktlVFA3bncyc29GR3VkMnI1cm5YRE80MGtUelc1enpnUnA1NHVaUnBPM1h6NmNtS21vM09RcFN0ZEhZUT09Jlo2UGE2cmpzL2hhb2FZMWg0cWZzelVHZjBvWT0=')
+PinterestRegister(False, '/opt/google/chrome/chromedriver', True).get_cookie('_auth=1;_b="AU0fIs9D/HBPz7M+K4571EeVxDkFe2xpPyoTAZ/vcfyyLV3rw5nOM4pgjwwvqknl+mU=";_pinterest_sess=TWc9PSZqempEa3RTQ24xM1EvUU94SzhCUm00NWgwMmJqK2ZmMnhXNHdzK1VTZEVLYWZYR1B2U25jUjZpOUtTakx0YlpWOHI4SkJpZ1NvenNya0pkY2sxR2ppM1NiZW1xS1pyYTRrTXJnak85MndWdnYwaDlTTWQrQkVJOU1tbDFkU3pveFhtTjJ0R05QZjN0OWJZQjUxUDlIT00wVXN2R1h5QUlNdTFCTzdNWFFhVFQ2a1hGUHZUby9Ld1J3YzNyM3pkNDJ3azNoaEQ0a0tOdCtYb2p2Wk9hZU1Jd1BkQlpKQW9xN3I2Sm5aMlBsMzhxSDNURmU2d0F5OFBubzFiMW1FdXBpeG9qVUpobndFUGVCVEtLYXVvRm02cXZ6SGdZbmFGNk9sZE9sNktUb094QVp6RFhkT0dnaHlpMnZRS1Y3eUpIVFF6aytiSTc2QUZqWGZDL3VQWG9aeWxTdW1HOWROMmp3MFZ5RllWZ2JHS3VNb01vMTFnZHgzcldxdXJtb1Y5MWxLMnB0bWFucEVXRmo3S24ra29WU0RSS1lsMTUvOTQvRzdKay8yVUJwKzJJR0FzcmJ2UWlKeEtLSFlXa2ZhT1JqcmRLa0d2VUMycCsxZGRrZHBhVzVGcGJsMXg5dmcvdTFWTWtXUmhDazk3TTI4T2o5QkphNDlVM3J3Rmg1U0Q2Tys3OE0zUUVMWGNUVnpzNU9WNlN3VlorcWorUjVKcUtwdkdrOWEwWnQrUTU4a3RJaFI1eHA5dVRlQUllaHhqTE9TMjVZakJ0ZVhaSW0wbmsvVTJFQTJSQkRFTGlLOFk5ekhGc0RpODZ0ZkhPWHppQXRFWUEzR2s2UDk0VzVBWjlrNDRVTk1CS3J2Tjl4OXNJN1RpVVFWOGVCZnZrZU1GN0N4bElZM2U3eWlvVzUrZ0FrWjkxQ213SUZTUnU5alpURTc4aEREcXE3ZGRkYkNwM1kxcm5URHk3K29iUjF5cnMweWJqK0F2U1RrWWpLUjlBQ3hZWWhjbzNRbXpma3BkVkQrL29QSVJ4YWlTS0ZmYWdTQTk5UUpHMEo5RHVqL2ZHYkRBSHJHWWJBaGpDSmUzNUNHQnp4TUE2ZTdsYnRMZ0FNZ0FvWkJnczZNdWpNK3JqanQ4TTNka2tqZVdlM3g1UnQ3VmpreFQyOEZyL2dLV0t3cXRjQ0ZOcXBKZXByWU4rVEJ3M2RGTHhhL0JkekVmSk85K052ekUvcG5sazl3NGpqVWZWUWVtUHhFQ3ZWblI0L1U0MldDUHFtKzRVWkJRaXorOEpvdGttbnpwWm5iOS91aDlabWl0R1JHSFFiT2R4Q0lyL2JlYWNONXY2OTRTWlVTdnBpWm80TnVsUG45b202dHozaTkyeklwVUdqWjk3Q3ZLNElRUT09JlhkWnBHYmIxMXpyTUlPZElhdzZjd1Jmbm5qMD0=')
