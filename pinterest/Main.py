@@ -8,8 +8,6 @@ import base64
 from pinterest import CookieManager as Manager, LoggingUtil
 from pinterest.CookieManager import CookieManager
 from pinterest.PinterestLogin import PinterestLogin
-from pinterest.PinterestRecommend import PinterestImageSearch
-from pinterest.PinterestSearchImprovement import PinterestSearchImprovement
 
 app = Flask(__name__)
 CORS(app)
@@ -27,22 +25,6 @@ def google_logout():
     return res
 
 
-@app.route('/pinterest/recommend')
-def recommend():
-    set_cookie, cookie = get_cookie(request)
-
-    keyword = request.args.get("keyword")
-    keywords = PinterestImageSearch(cookie).get_recommend(keyword)
-
-    rs = {'status': 200}
-    if keywords:
-        rs['keywords'] = keywords
-    else:
-        rs['status'] = 500
-
-    return Manager.get_cookie_resp(cookie, json.dumps(rs)) if set_cookie else rs
-
-
 def get_cookie(req):
     set_cookie = False
     if not Manager.cookie_exist(req):
@@ -51,21 +33,6 @@ def get_cookie(req):
     else:
         cookie = Manager.get_cookie(req)
     return set_cookie, cookie
-
-
-@app.route('/pinterest/improvement')
-def improvement():
-    set_cookie, cookie = get_cookie(request)
-
-    keyword = request.args.get("keyword")
-    keywords = PinterestSearchImprovement(cookie).get_recommend(keyword)
-    rs = {'status': 200}
-    if keywords:
-        rs['keywords'] = keywords
-    else:
-        rs['status'] = 500
-
-    return Manager.get_cookie_resp(cookie, json.dumps(rs)) if set_cookie else rs
 
 
 @app.route('/pinterest/login')
