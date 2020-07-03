@@ -46,22 +46,24 @@ class PymysqlUtil:
     # 查询单行记录
     def get_one(self, sql):
         res = None
+        # noinspection PyBroadException
         try:
             self.getCon()
             self.cursor.execute(sql)
             res = self.cursor.fetchone()
-        except Exception as e:
+        except Exception:
             log.exception('sql error, sql= %s', sql)
         return res
 
     # 查询列表数据
     def get_all(self, sql):
         res = None
+        # noinspection PyBroadException
         try:
             self.getCon()
             self.cursor.execute(sql)
             res = self.cursor.fetchall()
-        except Exception as e:
+        except Exception:
             log.exception('sql error, sql= %s', sql)
         finally:
             self.close()
@@ -70,12 +72,13 @@ class PymysqlUtil:
     # 插入数据
     def __insert(self, sql):
         count = 0
+        # noinspection PyBroadException
         try:
             log.info('sql:%s', sql)
             self.getCon()
             count = self.cursor.execute(sql)
             self.db.commit()
-        except Exception as e:
+        except Exception:
             log.exception('sql error, sql= %s', sql)
             self.db.rollback()
         finally:

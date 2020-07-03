@@ -17,37 +17,40 @@ browser_size, max_browser_size = 0, 5
 def open_browser(env):
     global browser_size
     if browser_size < max_browser_size:
+        # noinspection PyBroadException
         try:
             b = PinterestRegisterManger(env)
             browsers.put(b)
             browser_size += 1
             return b
-        except Exception as e:
+        except Exception:
             logging.exception('open browser error')
 
 
 def register(user_name, env):
+    # noinspection PyBroadException
     try:
         p = browsers.get(timeout=5)
-    except:
+    except Exception:
         p = open_browser(env)
         if p is None:
             return p
-
+    # noinspection PyBroadException
     try:
         str_cookies = p.process(user_name)
         if str_cookies:
             browsers.put(p)
             return str_cookies
-    except Exception as e:
+    except Exception:
         logging.exception('register error')
         close_browser(p, env)
 
 
 def close_browser(p, env):
+    # noinspection PyBroadException
     try:
         p.close()
-    except Exception as e:
+    except Exception:
         logging.exception('close browser error')
     finally:
         open_browser(env)
@@ -75,14 +78,13 @@ class PinterestRegisterManger:
             logging.info('can\'t find user: %s' % user_name)
             raise Exception('can\'t find user:{}'.format(user_name))
         for i in range(3):
+            # noinspection PyBroadException
             try:
                 n_cookie = self.p.get_cookie(cookie)
                 if n_cookie:
                     return n_cookie
-            except Exception as e:
+            except Exception:
                 logging.exception('error')
 
     def close(self):
         self.p.close()
-
-

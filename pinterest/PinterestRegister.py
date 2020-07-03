@@ -43,10 +43,11 @@ class PinterestRegister:
         self.url = 'https://www.pinterest.com'
 
     def wait_for_elements(self, css_select, timeout=10):
+        # noinspection PyBroadException
         try:
             WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located((By.CSS_SELECTOR, css_select)))
             return True
-        except Exception as e:
+        except Exception:
             logging.exception('can\'t find elements:{}'.format(css_select))
             return False
 
@@ -126,10 +127,11 @@ class PinterestRegister:
 
     def close(self):
         logging.info('close driver')
+        # noinspection PyBroadException
         try:
             self.driver.stop_client()
             self.driver.quit()
-        except Exception as e:
+        except Exception:
             logging.exception('close driver exception')
 
 

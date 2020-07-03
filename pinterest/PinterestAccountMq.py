@@ -25,11 +25,11 @@ env = 'dev'
 pl = PinterestLogin()
 
 
-def login(user_name, user_password):
+def login(user_name, user_password, user_type):
     status_code, str_cookies = pl.get_cookie(user_name, user_password)
     manager = CookieManager(env)
     if status_code == 200:
-        manager.add_cookie(user_name, str_cookies)
+        manager.add_cookie(user_name, str_cookies, user_type)
     elif status_code == 401:
         manager.disable_cookie(user_name, str_cookies)
     elif status_code == 429:  # 控制频率
@@ -40,24 +40,26 @@ def login(user_name, user_password):
 def register(user_name):
     str_cookies = PinterestRegisterManger.register(user_name, env)
     if str_cookies:
-        CookieManager(env).add_cookie(user_name, str_cookies, 2)
+        CookieManager(env).add_cookie(user_name, str_cookies, 1)
 
 
-def callback(ch, method, properties, body):
+def callback(ch, method, _, body):
     print(str(datetime.datetime.now()), body)
-    req = json.loads(body.decode('utf-8'))
-    user_name = req['userName']
-    user_password = req['userPassword']
-    if req['type'] == 1:
-        register(user_name)
+    data = json.loads(body.decode('utf-8'))
+    user_name = data['userName']
+    user_password = data['userPassword']
+    user_type = data['userType']
+
+    if user_type != 0 or data['cookieStatus'] == -1:
+        login(user_name, user_password, user_type)
     else:
-        login(user_name, user_password)
+        register(user_name)
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
 class PinterestAccountMq:
 
-    def __init__(self, env):
+    def __init__(self):
         if env == 'dev':
             c = config['dev']['rabbit']
         elif env == 'prod':
@@ -82,6 +84,7 @@ class PinterestAccountMq:
         )
 
     def main(self):
+        # noinspection PyBroadException
         try:
             channel = self.connection.channel()
             channel.queue_bind(exchange=EXCHANGE, queue=Q_NAME, routing_key=R_KEY)
@@ -91,12 +94,11 @@ class PinterestAccountMq:
 
             print("start consuming.")
             channel.start_consuming()
-        except Exception as e:
+        except Exception:
             logging.exception('connect failed')
 
 
 if __name__ == '__main__':
     args = sys.argv[1:]
     env = args[0]
-    PinterestAccountMq(env).main()
-
+    PinterestAccountMq().main()

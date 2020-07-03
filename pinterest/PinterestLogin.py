@@ -44,16 +44,20 @@ class PinterestLogin:
     def get_cookie(self, user_name, password, proxies=None):
         status_code = 0
         str_cookie = ''
+        # noinspection PyBroadException
         try:
-            response = requests.post(request_url, proxies=proxies, headers=self.headers, data=self.__get_params(user_name, password))
+            response = requests.post(request_url, proxies=proxies, headers=self.headers,
+                                     data=self.__get_params(user_name, password))
             status_code = response.status_code
             if status_code == 401:
                 content = response.content.decode("utf-8")
                 j = json.loads(content)
                 message_detail = j['resource_response']['error']['message_detail']
-                logging.info("user_name=%s, password=%s, status=%s, message_detail=%s", user_name, password, status_code, message_detail)
+                logging.info("user_name=%s, password=%s, status=%s, message_detail=%s", user_name, password,
+                             status_code, message_detail)
             else:
                 logging.info("user_name=%s, password=%s, status=%s", user_name, password, status_code)
+                # noinspection PyBroadException
                 try:
                     list_cookies = [c.name + '=' + c.value for c in response.cookies]
                     str_cookie = ';'.join(list_cookies)
