@@ -18,15 +18,17 @@ class CookieManager:
         return self.p.get_random_cookie(user_type)
 
     def add_cookie(self, user_name, cookie, user_type=None):
+        # noinspection PyBroadException
         try:
             self.p.add_cookie(user_name, cookie, user_type)
             self.m.update_cookie(user_name, cookie, 1, 1, user_type)
-        except Exception as e:
+        except Exception:
             logging.exception('add cookie error: ')
 
     def disable_cookie(self, user_name, cookie):
+        # noinspection PyBroadException
         try:
             self.p.remove_cookie(user_name)
             self.m.update_cookie(user_name, cookie, 0, 0)
-        except Exception as e:
+        except Exception:
             logging.exception('add cookie error: ')
