@@ -7,12 +7,30 @@ from flask_cors import CORS
 from pinterest import LoggingUtil
 from pinterest.CookieManager import CookieManager
 from pinterest.PinterestLogin import PinterestLogin
+import json
 
 app = Flask(__name__)
 CORS(app)
 logging = LoggingUtil.get_logging()
 
 env = 'dev'
+
+
+@app.route('/pinterest/logout')
+def logout():
+    user_name = request.args.get("user_name")
+    if not user_name:
+        return {'status': 500}
+
+    CookieManager(env).disable_cookie(user_name, '')
+    return {'status': 200}
+
+
+@app.route('/pinterest/users')
+def users():
+    user_type = request.args.get("type")
+    us = CookieManager(env).find_all_users(user_type)
+    return json.dumps(us)
 
 
 @app.route('/pinterest/login')
