@@ -12,14 +12,6 @@ class CookieManager:
         self.p = PinterestAccountRedis(env)
         self.m = PinterestAccountMysql(env)
 
-    def find_all_users(self, user_type=None):
-        return self.p.r_smembers(user_type)
-
-    def pick_up_cookie(self, user_type=None, name=None):
-        if name:
-            return name, self.p.r_get(name)
-        return self.p.get_random_cookie(user_type)
-
     def add_cookie(self, user_name, cookie, user_type=None):
         # noinspection PyBroadException
         try:
