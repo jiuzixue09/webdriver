@@ -15,7 +15,8 @@ logging = LoggingUtil.get_logging('webdriver_module')
 
 
 focus_on = {'家居装潢', '时尚', '艺术', '绘画', '壁纸', '穿搭', '摄影', '设计', '休闲穿搭', '旅行', '梦幻房间', '动漫', '漫画', '动画', '艺术与工艺品',
-            '现代室内设计', '家具', '街头风格', '房屋建筑'}
+            '现代室内设计', '家具', '街头风格', '房屋建筑', '艺术与摄影', '家居装潢', '女性时尚', '厨房设计', '舞会长礼服', '房屋建筑',
+            '梦幻房间', '设计'}
 
 
 class PinterestRegister:
@@ -55,7 +56,7 @@ class PinterestRegister:
         self.driver.set_window_size(1024, 768)
 
     def h2(self):
-        return self.driver.find_element_by_css_selector("div > h2").text
+        return self.driver.find_element_by_css_selector("div > h2, div >h1").text
 
     def delete_all_cookies(self):
         self.driver.delete_all_cookies()
@@ -74,37 +75,39 @@ class PinterestRegister:
             try:
                 is_first_time = self.wait_for_elements('button[aria-label="Next"]', 5)
                 if is_first_time:
+                    logging.info('in welcome page')
                     self.driver.find_element_by_css_selector(
                         'button[aria-label="Next"]').click()  # Welcome to Pinterest!
+                else:
+                    logging.info('skip welcome page')
 
-                if not self.wait_for_elements("div > h2", 5):
+                if not self.wait_for_elements("div > h2,div >h1", 5):
                     logging.info('can\'t find tag h2 ...')
                     return
                 if is_first_time or '性别' in self.h2() or 'identify' in self.h2():
+                    logging.info('in identity page')
                     self.driver.find_element_by_id('female').click()  # '你是如何认同性别的？'
                     sleep(1)
+                else:
+                    logging.info('skip identity page')
 
                 if is_first_time or '语言' in self.h2() or 'language' in self.h2():
+                    logging.info('in language page')
                     self.driver.find_element_by_id('newUserLanguage').send_keys('简体中文')  # '选择语言和国家/地区'
                     sleep(1)
                     self.driver.find_element_by_id('newUserCountry').send_keys('香港 (香港)')
-                    sleep(1)
+                    sleep(2)
                     self.driver.find_element_by_css_selector('button[type="submit"]').click()
                     sleep(1)
+                else:
+                    logging.info('skip language page')
 
-                if is_first_time or '最后一步' in self.h2():
-                    elements = self.driver.find_elements_by_css_selector('div.XBe.iD5 > div')  # '最后一步！让我们知道你对什么感兴趣'
-                    for e in elements:
-                        print(e.text)
-                        if e.text in focus_on:
-                            e.location_once_scrolled_into_view # should be called without ()
-                            # the location_once_scrolled_into_view is a Python property.
-                            e.click()
-                            sleep(0.1)
+                for _ in range(2):
+                    self.categorySelect()
+                    sleep(1)
 
-                self.driver.find_element_by_css_selector('button[type="submit"]').click()
-
-                self.driver.find_element_by_css_selector('span.deprecatedTextSizeXL')
+                sleep(1)
+                self.driver.find_element_by_css_selector('span.deprecatedTextSizeXL,a.GestaltTouchableFocus')
 
                 cookies = self.driver.get_cookies()
                 list_cookies = [c['name'] + "=" + c['value'] for c in cookies]
@@ -125,6 +128,26 @@ class PinterestRegister:
             logging.exception('Exception')
             raise e
 
+    def categorySelect(self):
+        title = self.h2()
+        if '最后一步' in title or '探索的类别' in title or '深入探索' in title:
+            logging.info('in category page')
+            elements = self.driver.find_elements_by_css_selector('div.XBe.iD5 > div')  # '最后一步！让我们知道你对什么感兴趣'
+            for e in elements:
+                print(e.text)
+                if e.text in focus_on:
+                    e.location_once_scrolled_into_view  # should be called without ()
+                    # the location_once_scrolled_into_view is a Python property.
+                    e.click()
+                    sleep(0.1)
+
+            if self.wait_for_elements('button[type="submit"]', 5):
+                logging.info('submit')
+            else:
+                logging.info('can\'t find submit button')
+                return
+            self.driver.find_element_by_css_selector('button[type="submit"]').click()
+
     def close(self):
         logging.info('close driver')
         # noinspection PyBroadException
@@ -135,4 +158,4 @@ class PinterestRegister:
             logging.exception('close driver exception')
 
 
-PinterestRegister(False, '/opt/google/chrome/chromedriver', True).get_cookie('_auth=1;_b="AU43zUxu3a1Fa6sfIOD0fv+Zlfg2dKMNQdQn8cTgWzlvsJn3OanjhXW8RHIFcmjegJM=";_pinterest_sess=TWc9PSZleEIzRTJrd0I0dVAySnJjQ2xSZHZWYUJodU45TDl4cktvQVZ0MGpCQlRjaXBjdTkzN253RmhSYlExWGNsU1hVeXB5bVd0bExwekJUTmYyVkI3K3VkWGEyRHhzNWorZHQ3YzIzNHNta2dQNkJDT3BjS2MvZG01TUk3Q0hKTUJzdTVWbnZRRytaZjIvVHFXdUsvQ1VYbWROc3BESTV3WmFvTUgyWVEvKzlwelZ3cE1yMG41eTRtSmJaeUNYNnlTM2VJaHNaS0VtTE9NdUswbStVTmo0Y0ExQVdSUXlteDF3c2RJQU53bHYwNVozZVRjZUlPQWx4dXlpR1B6UE9xbGRDc09qNjZKVy9PWUpmRlQwZ3EvZTAxR1lUN0grcWM0SlRRZG5FVEhDbTZtOTRLOTBneEI2aTFxUVVuNkUzdzNXODErTm5DejQrMndkMGp3cmpNOUxDdnIwSkIwbm1XanlVa3EvMDBCYnBHbi96VFlRbUMrdEJGQ0cyM0dnVlBzTEFXSXp6UzRkYThzUHc4OUpPSFpnMmI5Z2p0K3ZuWCttaU0xNHhqZ2l5aXB1Wnp0bFhPWFNNa1VuWWhBdFlmblpYUEZCeHV6ZmJySUcwK21CMlllVFdYb0NxRmxZQzdXNkhuNS82NGVsb2s1ZmVpWTRidWIwSGRkTUtnUEh3Yzdod0VOLy9rd1lLMXhZN3dGRnVFVTYycHhxY2drL3E0aEdLY3VKVnU4SHZKcVFTZ3VxbTNLTjBZbzFoZ0NzbU5RZG1MSEVQNHV1K3Vpb2FkdmJ4emRiSk45dVJDSUx5bTRDYkVZcC8yMUNmUjZNOGMzM3hqSE9la3RxYk9JWC9xRjg0NW9zMlorSW94dzA1bjNHZ0VDcWJoSFJIR211dTFaRVhPRHNhZzlINm14V3l0RXBoY3JMUW1ZOHROWStJSHl1Wk1zblFxdC9JYTB3WFdLT0ZZZnZCMEtBZlczdUJnZ2VPYWRJS0taMlVaOVNNMldXbkpLWmlZSUxHdXF2cWhUdWdNTGRFaGppNGh6czJraUt2ZmxJaGRoenhGcmNHNWhaVWVDRXB5dzhOQ1plbXdZOENvWVBGQ1cxVTV5MFdZNE95TzkrdmRjVnFESU8vYTVNdzM0cUJNZDltQTVBa3J4TXFqaTYxdWQra0d6YVRzN2ZlYmpoNnp6bG8rTmNIb3JnaVdzOEtlWUdIQTJkZ3MweWxnVW91MEJXcjhnanlwdTNmSFFPdWo2dStzSk4vWWlGNTlZOUZXN2U5ekRVZ2dweHpRd2lJM0FGMFVrY011OHVFMXF1MEh4WnRhTm9uWUJRek1hUkZvNW9laUpRdTliL3BQTDdIZkpRRFpiUHpEdENIcEZlSzlZaFpPSnUvejAvSzNQaFdCUT09JlowelRERk42QnIvRDVSTjdTL0xXeExrVy8rRT0=')
+
