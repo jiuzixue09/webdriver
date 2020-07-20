@@ -11,7 +11,7 @@ with open('config.yaml') as f:
 logging = LoggingUtil.get_logging()
 
 browsers = Queue()
-browser_size, max_browser_size = 0, 5
+browser_size, max_browser_size = 0, 2
 
 
 def open_browser(env):

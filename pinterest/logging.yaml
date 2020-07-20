@@ -38,15 +38,6 @@ handlers:
         backupCount: 20
         encoding: utf8
 
-    mysql_handler:
-        class: logging.handlers.RotatingFileHandler
-        level: INFO
-        formatter: simple
-        filename: logs/mysql.log
-        maxBytes: 10485760 # 10MB
-        backupCount: 20
-        encoding: utf8
-
     redis_handler:
         class: logging.handlers.RotatingFileHandler
         level: INFO
@@ -69,10 +60,6 @@ loggers:
     webdriver_module:
         level: INFO
         handlers: [webdriver_handler]
-        propagate: no
-    mysql_module:
-        level: INFO
-        handlers: [mysql_handler]
         propagate: no
     redis_module:
         level: INFO

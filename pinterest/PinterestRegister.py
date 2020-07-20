@@ -1,4 +1,3 @@
-
 from time import sleep
 
 from selenium import webdriver
@@ -12,7 +11,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 from pinterest import LoggingUtil
 
 logging = LoggingUtil.get_logging('webdriver_module')
-
 
 focus_on = {'家居装潢', '时尚', '艺术', '绘画', '壁纸', '穿搭', '摄影', '设计', '休闲穿搭', '旅行', '梦幻房间', '动漫', '漫画', '动画', '艺术与工艺品',
             '现代室内设计', '家具', '街头风格', '房屋建筑', '艺术与摄影', '家居装潢', '女性时尚', '厨房设计', '舞会长礼服', '房屋建筑',
@@ -118,11 +116,11 @@ class PinterestRegister:
 
             return cookie
 
-        except InvalidSessionIdException as e:
+        except InvalidSessionIdException:
             logging.exception('InvalidSessionIdException')
-        except MaxRetryError as e:
+        except MaxRetryError:
             logging.exception('MaxRetryError')
-        except NoSuchWindowException as e:
+        except NoSuchWindowException:
             logging.exception('NoSuchWindowException')
         except Exception or TimeoutException as e:
             logging.exception('Exception')
@@ -136,7 +134,7 @@ class PinterestRegister:
             for e in elements:
                 print(e.text)
                 if e.text in focus_on:
-                    e.location_once_scrolled_into_view  # should be called without ()
+                    _ = e.location_once_scrolled_into_view  # should be called without ()
                     # the location_once_scrolled_into_view is a Python property.
                     e.click()
                     sleep(0.1)
@@ -158,4 +156,5 @@ class PinterestRegister:
             logging.exception('close driver exception')
 
 
-
+PinterestRegister(False, '/opt/google/chrome/chromedriver', True).get_cookie(
+    '_auth=1;_b=\"AU4hqevlwUxLI5qRygxhxkH3j1VbABIyh4UVSL+mR91BnKYJ7iuy5dXDSjTSl5+AWrg=\";_pinterest_sess=TWc9PSZpWVBtVWdTeEgzTEVMVkNVZEcrL0dLU0VaZ0NnV3BqejBWWVZkdUY1cmZTeUR3SENtRXBjb3FwQk1FbENKajZYWDE3Z2kwMzRsYmdORmMrZVRzdGtNbm5WTnZPU0UvQm4wZkM1cytFc09OYytGSDBiWFV6UjZKNjUzODc0VWk3c2VlOXNvYXcvVHk4QmZ6YnBoTkp3dnZBcS9jNUl1ODlGdnRwcWtYUE05ZG10VXc4b1lHODdmTnVtM3pHVVFZeElQdm9kV2ZRM1NzU3NrUG5oU1BsMGxtbGJZaVdIZ2ROWXd6M1hZQVNjQ1E0Z1YzVERpMXNnN05VcnBhSGFybmliOWxVY09FYndkMnJBSnFPYUZobjFnNUVhUVBWYnBwcGtVaE5tY2M5bDllbFlBaGg1YnN1dTZKN1YvR3h1UVEzV241UHVyeXBPblY1SjVLSnNUK0Rta1NqaVp3RXM0ZW85ZVo4eUo4SGZWRVlTR0NjZmpUY2xPWk1JSmdYSjlIdFpIZXd0NmlKYzVGYzBiWXI5Y3k1U0twa3ZlcEZXclBNL2c2WmNOMzRyczVaakl5T1Y0aXNxa01vWVNzcmFIcjdOejVFa0Z4Qk10ZFdyY2xZd2RBK3Z4MjQ5S1N3WHhFbE1uSnJ4NThUelJtdUhhMnlIVHRBR1lGbWpsRzlPa3AwNGtzbE8zVEV1QU8vUjBxWk1TWkgyOTZXUUNRMUpoQ2NuVng1QXIzRmJmaGQvRXVwOFRHRDFSeEsvTVZSYWNhdGNRZkFOc2FhOEV3VWgzTTVFZTRQUENpb2xsc2poNGJPLzhiMWV3NGE3dXlJOFlpMEZtWTlidjVnNTdhZGdHOW0xMU93blVGZ01IakZxQXRaa2poT3ZHYVlWejBlOGduNEkydFp3MElxdFpyL0pQcFU5YlQzb1VPcVJraHFwV0VVQUZDMS9HODVlVkdZMEJnVW9WWW5HVUhsZ1JKaUdicHBNdnRaM2llY2FHUkR4VDBUcURCNHhSaU5DcVI2aHdkS1hmY3h1b2c3YmVEVEs3OE13RXlRN21EZGp2Zjc1a2duWVdISWxIdzdVQWI5UmRLd3B3QkRFRDU1cFRXUnZ2aGIvL2hWT3RoUzc2cW5sbnFUR1l0TmRqOFZkZUt0MUVja0J1UVJSOHpCUWRsc0RVNW41OURUWFlDL2YwcmtSSUxKZXdNQ0NSRGRxOWs1b1piTGZhUXlhV2hLc1NYaGlTdzFTY2hKS25Wdmc2a21aYkJpd1lNQ0c4bExiMWpaQnYrbmlnMWZGQ0JvdUdtL1JkbXRTWisyVlNqR0JLNEVvbXJQdzZLRWV2b3Y2K3p6TDVENWNvYlFWMllZeWVXNnBSWFNHdDdtT0JDL3ZwUEhFL1dEOWE2akZ6Zz09JktEdXVVTVFWamVFcTlVUzRKVExFaktWdmZTcz0=')

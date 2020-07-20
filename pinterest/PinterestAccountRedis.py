@@ -21,12 +21,10 @@ class PinterestAccountRedis:
     two_weeks = 60 * 60 * 24 * 7 * 2
 
     def __init__(self, env):
-        if env == 'dev':
-            c = config['dev']['redis']
-        elif env == 'prod':
-            c = config['prod']['redis']
-        else:
+        c = config[env]['redis']
+        if not c:
             raise Exception('IllegalArgumentException: env can\'t be' + env)
+
         logging.info('env=%s, config=%s', env, c['host'])
         self.redis = RedisUtil(c['host'], c['port'], c['password'])
 
