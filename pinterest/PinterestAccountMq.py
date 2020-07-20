@@ -44,7 +44,7 @@ def register(user_name):
 
 
 def callback(ch, method, _, body):
-    print(str(datetime.datetime.now()), body)
+    logging.info(str(datetime.datetime.now()), body)
     data = json.loads(body.decode('utf-8'))
     user_name = data['userName']
     user_password = data['userPassword']

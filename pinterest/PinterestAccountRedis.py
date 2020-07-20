@@ -18,7 +18,7 @@ def g_key(key):
 
 
 class PinterestAccountRedis:
-    two_weeks = 60 * 60 * 24 * 7 * 2
+    two_weeks = 60 * 60 * 24 * 30
 
     def __init__(self, env):
         c = config[env]['redis']
