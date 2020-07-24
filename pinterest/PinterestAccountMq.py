@@ -33,8 +33,8 @@ def login(user_name, user_password, user_type):
     elif status_code == 401:
         manager.disable_cookie(user_name, str_cookies)
     elif status_code == 429:  # 控制频率
-        logging.info('登录被拒，休眠10分钟')
-        sleep(10 * 60)
+        logging.info('登录被拒，休眠20分钟')
+        sleep(20 * 60)
 
 
 def register(user_name):

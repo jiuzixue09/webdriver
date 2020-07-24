@@ -1,9 +1,10 @@
+import json
 from queue import Queue
 
+import requests
 import yaml
 
 from pinterest import LoggingUtil
-from pinterest.PinterestAccountRedis import PinterestAccountRedis
 from pinterest.PinterestRegister import PinterestRegister
 
 with open('config.yaml') as f:
@@ -59,21 +60,27 @@ def close_browser(p, env):
 class PinterestRegisterManger:
 
     def __init__(self, env):
-        if env == 'dev':
-            c = config['dev']['webdriver']
-        elif env == 'prod':
-            c = config['prod']['webdriver']
-        else:
+        # noinspection PyBroadException
+        try:
+            c = config[env]['webdriver']
+        except Exception:
             raise Exception('IllegalArgumentException: env can\'t be' + env)
+
+        self.cookie_url = config[env]['redis']['api']['cookie']
         logging.info('env=%s, config=%s', env, c)
-        self.redis = PinterestAccountRedis(env)
 
         self.p = PinterestRegister(c['hide_browser'], c['path'])
         self.env = env
 
     def process(self, user_name):
         # self.p.delete_all_cookies()
-        cookie = self.redis.r_get(user_name)
+        content = requests.get(self.cookie_url + "?name" + user_name).content.decode('utf-8')
+
+        if not content:
+            logging.info('can\'t find user: %s' % user_name)
+            raise Exception('can\'t find user:{}'.format(user_name))
+
+        cookie = json.loads(content)['cookies']
         if not cookie:
             logging.info('can\'t find user: %s' % user_name)
             raise Exception('can\'t find user:{}'.format(user_name))
