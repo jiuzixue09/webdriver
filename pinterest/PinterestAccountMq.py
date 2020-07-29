@@ -37,6 +37,11 @@ def login(user_name, user_password, user_type):
         sleep(20 * 60)
 
 
+def add_cookie(user_name, str_cookies, user_type):
+    manager = CookieManager(env)
+    manager.add_cookie(user_name, str_cookies, user_type)
+
+
 def register(user_name):
     str_cookies = PinterestRegisterManger.register(user_name, env)
     if str_cookies:
@@ -50,7 +55,9 @@ def callback(ch, method, _, body):
     user_password = data['userPassword']
     user_type = data['userType']
 
-    if user_type != 0 or data['cookieStatus'] == -1:
+    if 'cookies' in data:
+        add_cookie(user_name, data['cookies'], user_type)
+    elif user_type != 0 or data['cookieStatus'] == -1:
         login(user_name, user_password, user_type)
     else:
         register(user_name)

@@ -74,16 +74,19 @@ class PinterestRegisterManger:
 
     def process(self, user_name):
         # self.p.delete_all_cookies()
-        content = requests.get(self.cookie_url + "?name" + user_name).content.decode('utf-8')
+        request_url = self.cookie_url + "?name=" + user_name
+        logging.info('request_url=%s', request_url)
+        content = requests.get(request_url).content.decode('utf-8')
 
         if not content:
             logging.info('can\'t find user: %s' % user_name)
             raise Exception('can\'t find user:{}'.format(user_name))
 
-        cookie = json.loads(content)['cookies']
-        if not cookie:
+        j = json.loads(content)
+        if not j or 'cookies' not in j:
             logging.info('can\'t find user: %s' % user_name)
             raise Exception('can\'t find user:{}'.format(user_name))
+        cookie = j['cookies']
         for i in range(3):
             # noinspection PyBroadException
             try:
