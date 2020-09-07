@@ -75,6 +75,7 @@ class BigBigWork:
     def login(self, user_name, user_password, times):
         self.open(self.login_url)
         logging.info("用户第%d次登录，用户名=%s, 密码=%s", times, user_name, user_password)
+        self.wait_for_elements('div.login.btn')
         self.driver.find_element_by_css_selector('div.login.btn').click()
         self.driver.find_element_by_css_selector('div.weixin-login-toPhone > a > i').click()
         self.driver.find_element_by_css_selector('ul.inputbox li input[type=text]').send_keys(user_name)
