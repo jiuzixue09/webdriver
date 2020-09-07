@@ -100,8 +100,8 @@ class BigBigWork:
     def screen_shot(self, times=0):
         try:
             logging.info("截图，图片目录=%s", self.path)
-            if self.wait_for_elements('div.gift-content'):
-                gift = self.driver.find_element_by_css_selector('div.gift-content')
+            if self.wait_for_elements('body > div.el-dialog__wrapper > div > div.el-dialog__body > div > div'):
+                gift = self.driver.find_element_by_css_selector('body > div.el-dialog__wrapper > div > div.el-dialog__body > div > div')
                 sleep(1)
                 self.save(self.path + '/' + str(times) + '登_gift' + '.png')
                 gift.click()
@@ -125,7 +125,7 @@ class BigBigWork:
 
             self.wait_for_elements('#p-button')
             self.driver.find_element_by_id("p-button").click()
-            items = self.driver.find_elements_by_css_selector('#VIPSelect > li.item')
+            items = self.driver.find_elements_by_css_selector('#VIPSelect > li')
 
             for i in range(len(items)):
                 items[i].click()
@@ -133,7 +133,7 @@ class BigBigWork:
                 self.save(self.path + '/' + str(times) + '登_下载_' + str(i) + '.png')
 
             sleep(0.5)
-            self.driver.execute_script('document.getElementsByClassName("closedthismask")[0].click()')
+            self.driver.execute_script('document.querySelector("body > div.el-dialog__wrapper > div > div.el-dialog__header > button").click()')
             sleep(0.5)
             self.save(self.path + '/' + str(times) + '登_下载_' + str(len(items)) + '.png')
         except Exception as e:
