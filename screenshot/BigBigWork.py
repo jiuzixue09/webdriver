@@ -96,7 +96,7 @@ class BigBigWork:
         return None
 
     def set_window_size(self):
-        self.driver.set_window_size(1024, 768)
+        self.driver.set_window_size(1920, 1080)
 
     def screen_shot(self, times=0):
         try:
@@ -206,6 +206,7 @@ def normal_user_test(env):
     rs['user_path'] = path
     abspath = os.path.abspath(os.path.dirname(path))
     rs['path'] = abspath
+    logging.info(rs)
     return rs
 
 
@@ -246,6 +247,7 @@ def vip_user_test(env):
     rs['user_path'] = path
     abspath = os.path.abspath(os.path.dirname(path))
     rs['path'] = abspath
+    logging.info(rs)
     return rs
 
 

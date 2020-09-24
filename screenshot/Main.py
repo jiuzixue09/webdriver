@@ -13,6 +13,10 @@ app = Flask(__name__, static_url_path='')
 
 logging = LoggingUtil.get_logging()
 
+file_path = 'files'
+if not os.path.exists(file_path):
+    os.mkdir(file_path)
+
 test_running, prod_running = False, False
 
 
@@ -61,6 +65,7 @@ def date():
 
 def zip_compress(dir_name, output_filename):
     output_filename += date()
+    output_filename = file_path + '/' + output_filename
     zip_file = shutil.make_archive(output_filename, 'zip', dir_name)
     return zip_file.split('/')[-1]
 
@@ -68,12 +73,20 @@ def zip_compress(dir_name, output_filename):
 @app.route('/download/prod')
 def download_prod():
     name = request.args.get("name")
+    logging.info(name)
+    if not name:
+        return {'status': 'empty name'}
+    name = file_path + '/' + name
     return send_file(name)
 
 
 @app.route('/download/test')
 def download_test():
     name = request.args.get("name")
+    logging.info(name)
+    if not name:
+        return {'status': 'empty name'}
+    name = file_path + '/' + name
     return send_file(name)
 
 
@@ -95,5 +108,6 @@ class DeleteFile(Thread):
 
 
 if __name__ == "__main__":
-    DeleteFile().start()
-    app.run(host='0.0.0.0')
+    print(zip_compress('/home/hdc/yed', 'prod'))
+    # DeleteFile().start()
+    # app.run(host='0.0.0.0')
