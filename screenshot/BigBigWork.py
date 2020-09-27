@@ -20,11 +20,15 @@ with open('config.yaml') as file:
 
 class BigBigWork:
 
-    def wait_for_elements(self, css_select, timeout=10):
+    def wait_for_elements(self, css_select, timeout=10, refresh=False):
+
         try:
             WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located((By.CSS_SELECTOR, css_select)))
             return True
         except Exception as e:
+            if refresh:
+                self.driver.refresh()
+                return self.wait_for_elements(css_select, timeout)
             logging.exception('can\'t find elements:{}'.format(css_select))
             return False
 
@@ -124,7 +128,7 @@ class BigBigWork:
             self.open(self.home_url)
             sleep(1)
 
-            self.wait_for_elements('#p-button')
+            self.wait_for_elements('#p-button', refresh=True)
             self.driver.find_element_by_id("p-button").click()
             items = self.driver.find_elements_by_css_selector('#VIPSelect > li')
 
@@ -168,7 +172,7 @@ class BigBigWork:
 
 
 def normal_user_test(env):
-    rs = {'status': 'ok'}
+    rs = {'status': 200}
     configuration = config.get(env)
     login_url = configuration.get('login_url')
     change_user_state_url = configuration.get('change_user_state_url')
@@ -185,7 +189,7 @@ def normal_user_test(env):
         for i in range(normal_user.get('login_times') + 1):
             info = big_big_work.login(user_name, password, i)
             if info is not None:
-                rs['status'] = 'error'
+                rs['status'] = 500
                 rs['reason'] = info
                 return rs
             if i > 0:
@@ -196,7 +200,7 @@ def normal_user_test(env):
             big_big_work.delete_all_cookies()
             path = big_big_work.get_path()
     except Exception as e:
-        rs['status'] = 'error'
+        rs['status'] = 500
         rs['reason'] = '页面加载异常'
         logging.exception('normal user screenshot error')
 
@@ -211,7 +215,7 @@ def normal_user_test(env):
 
 
 def vip_user_test(env):
-    rs = {'status': 'ok'}
+    rs = {'status': 200}
     configuration = config.get(env)
     login_url = configuration.get('login_url')
     change_user_state_url = configuration.get('change_user_state_url')
@@ -228,11 +232,12 @@ def vip_user_test(env):
         for i in range(vip_user.get('login_times') + 1):
             info = big_big_work.login(user_name, password, i)
             if info is not None:
-                rs['status'] = 'error'
+                rs['status'] = 500
                 rs['reason'] = info
                 return rs
             if i > 0:
                 big_big_work.screen_shot(i)
+                big_big_work.screen_shot2(i)
             time.sleep(1)
             big_big_work.change_login_times(i + 1)
             big_big_work.delete_all_cookies()
@@ -240,7 +245,7 @@ def vip_user_test(env):
     except Exception as e:
         logging.exception('vip user screenshot error')
     finally:
-        rs['status'] = 'error'
+        rs['status'] = 500
         rs['reason'] = '页面加载异常'
         big_big_work.close()
 

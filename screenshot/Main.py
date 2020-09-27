@@ -24,17 +24,17 @@ test_running, prod_running = False, False
 def screenshot_prod():
     global prod_running
     if prod_running:
-        return {'status': 'please waiting for another job finished'}
+        return {'status': 423, 'message': 'please waiting for another job finished'}
     try:
         rs1 = BigBigWork.normal_user_test('prod')
         rs2 = BigBigWork.vip_user_test('prod')
         file_name = zip_compress('prod', 'prod')
-        rs = {'normal_user': rs1, 'vip_user': rs2, 'file_name': file_name}
+        rs = {'normal_user': rs1, 'vip_user': rs2, 'file_name': file_name, 'status': 200}
         shutil.rmtree('prod')
         return rs
-    except Exception as e:
+    except:
         logging.exception('error')
-        return {'status': 'error'}
+        return {'status': 500}
     finally:
         prod_running = False
 
@@ -43,18 +43,18 @@ def screenshot_prod():
 def screenshot_test():
     global test_running
     if test_running:
-        return {'status': 'please waiting for another job finished'}
+        return {'status': 423, 'message': 'please waiting for another job finished'}
     try:
         test_running = True
         rs1 = BigBigWork.normal_user_test('test')
         rs2 = BigBigWork.vip_user_test('test')
         file_name = zip_compress('test', 'test')
-        rs = {'normal_user': rs1, 'vip_user': rs2, 'file_name': file_name}
+        rs = {'normal_user': rs1, 'vip_user': rs2, 'file_name': file_name, 'status': 200}
         shutil.rmtree('test')
         return rs
-    except Exception as e:
+    except:
         logging.exception('error')
-        return {'status': 'error'}
+        return {'status': 500}
     finally:
         test_running = False
 
@@ -103,11 +103,10 @@ class DeleteFile(Thread):
                         if d and (int(date()) - int(d[0])) > 10:
                             os.remove(f)
                 time.sleep(10 * 60)
-            except Exception as e:
+            except :
                 logging.exception('delete file error')
 
 
 if __name__ == "__main__":
-    print(zip_compress('/home/hdc/yed', 'prod'))
     # DeleteFile().start()
-    # app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0')
