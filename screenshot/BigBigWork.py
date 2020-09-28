@@ -113,7 +113,7 @@ class BigBigWork:
 
                 self.driver.switch_to.window(self.driver.window_handles[-1])
 
-                containers = self.driver.find_elements_by_css_selector('div.container-center > div')
+                containers = self.driver.find_elements_by_css_selector('#VIPSelect > div')
                 for i in range(len(containers)):
                     containers[i].click()
                     sleep(1)
@@ -236,7 +236,7 @@ def vip_user_test(env):
                 rs['reason'] = info
                 return rs
             if i > 0:
-                big_big_work.screen_shot(i)
+                # big_big_work.screen_shot(i)
                 big_big_work.screen_shot2(i)
             time.sleep(1)
             big_big_work.change_login_times(i + 1)
@@ -257,6 +257,7 @@ def vip_user_test(env):
 
 
 # normal_user_test('prod')
+vip_user_test('prod')
 
 # pip3 install selenium pyyaml
 

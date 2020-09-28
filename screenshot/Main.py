@@ -96,17 +96,17 @@ class DeleteFile(Thread):
         super().run()
         while True:
             try:
-                dirs = os.listdir('.')
+                dirs = os.listdir(file_path)
                 for f in dirs:
                     if (f.startswith('test') or f.startswith('prod')) and f.endswith('.zip'):
                         d = re.findall('[0-9]+', f)
-                        if d and (int(date()) - int(d[0])) > 10:
-                            os.remove(f)
+                        if d and (int(date()) - int(d[0])) > 10000:
+                            os.remove(file_path + '/' + f)
                 time.sleep(10 * 60)
             except :
                 logging.exception('delete file error')
 
 
 if __name__ == "__main__":
-    # DeleteFile().start()
-    app.run(host='0.0.0.0')
+    DeleteFile().start()
+    # app.run(host='0.0.0.0')
