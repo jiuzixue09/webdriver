@@ -257,7 +257,7 @@ def vip_user_test(env):
 
 
 # normal_user_test('prod')
-vip_user_test('prod')
+# vip_user_test('prod')
 
 # pip3 install selenium pyyaml
 
