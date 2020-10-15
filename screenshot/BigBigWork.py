@@ -105,8 +105,8 @@ class BigBigWork:
     def screen_shot(self, times=0):
         try:
             logging.info("截图，图片目录=%s", self.path)
-            if self.wait_for_elements('body > div.el-dialog__wrapper > div > div.el-dialog__body > div > div'):
-                gift = self.driver.find_element_by_css_selector('body > div.el-dialog__wrapper > div > div.el-dialog__body > div > div')
+            if self.wait_for_elements('div.el-dialog__wrapper div.el-dialog__body > div > div'):
+                gift = self.driver.find_element_by_css_selector('div.el-dialog__wrapper div.el-dialog__body > div > div')
                 sleep(1)
                 self.save(self.path + '/' + str(times) + '登_gift' + '.png')
                 gift.click()
